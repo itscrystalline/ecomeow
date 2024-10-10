@@ -1,0 +1,65 @@
+version: "3.1"
+
+services:
+  db:
+    image: timescale/timescaledb:latest-pg15
+    restart: always
+    shm_size: 512mb
+    environment:
+      POSTGRES_PASSWORD: dbTH2147483648
+      POSTGRES_USER: realtime
+    command: postgres -c 'max_connections=1000'
+    volumes:
+      - /home/ecomeow/realtimeco2/runtime/postgres-realtime:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - "8080:8080"
+
+  collector:
+    build:
+        context: collector
+        dockerfile: Dockerfile
+    restart: always
+    depends_on:
+      - db-collector
+    environment:
+      DATA_URL: "http://172.17.0.1:8168"
+    container_name: collector
+
+  db-collector:
+    build:
+      context: db
+      dockerfile: Dockerfile
+    restart: always
+    environment:
+      AI_URL: "http://172.17.0.1:8157"
+    hostname: db-collector
+    container_name: db-collector
+    network_mode: host
+
+  ai:
+    build:
+      context: realtimeco2-ai
+      dockerfile: Dockerfile
+    restart: always
+    volumes:
+      - /home/ecomeow/realtimeco2/runtime/ai-models:/app/models
+      - /home/ecomeow/realtimeco2/runtime/ai-data:/app/data
+    ports:
+      - "8157:8000"
+    container_name: ai
+
+  webui:
+    build:
+      context: webui
+      dockerfile: Dockerfile
+    environment:
+      DATABASE_URL: "postgresql://realtime:dbTH2147483648@172.17.0.1:5432/realtime"
+    restart: always
+    network_mode: host
+    container_name: webui

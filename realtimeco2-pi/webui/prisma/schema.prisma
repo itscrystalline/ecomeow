@@ -1,0 +1,83 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model AnnualCo2Emissions {
+  time                         DateTime    @id @default(now())
+  Population                   Population? @relation(fields: [populationGrowthThisYear], references: [populationGrowthThisYear])
+  populationGrowthThisYear     BigInt?     @unique
+  currentCo2Emissions          Float
+  currentCo2EmissionsPredicted Float
+  annualCo2EmissionsPredicted  Float
+}
+
+model TotalCo2Emissions {
+  time                                DateTime    @id @default(now())
+  Population                          Population? @relation(fields: [population], references: [population])
+  population                          BigInt?     @unique
+  totalCo2EmissionsPredicted          Float
+  endOfYearTotalCo2EmissionsPredicted Float
+}
+
+model Population {
+  time                               DateTime            @default(now())
+  population                         BigInt              @id
+  populationGrowthThisYear           BigInt              @unique
+  populationPredicted                BigInt
+  populationGrowthThisYearPredicted  BigInt
+  endOfYearPopulationPredicted       BigInt
+  endOfYearPopulationGrowthPredicted BigInt
+  TotalCo2Emissions                  TotalCo2Emissions?
+  AnnualCo2Emissions                 AnnualCo2Emissions?
+}
+
+model PredictorStats {
+  time                         DateTime @id @default(now())
+  populationPrecision          Float    @default(0)
+  populationGrowthPrecision    Float    @default(0)
+  totalCo2EmissionsPrecision   Float    @default(0)
+  annualCo2EmissionsPrecision  Float    @default(0)
+  totalFossilEnergyAccuracy    Float    @default(0)
+  totalRenewableEnergyAccuracy Float    @default(0)
+}
+
+model PopulationBy {
+  time                              DateTime @id @default(now())
+  year                              Int
+  populationPredicted               BigInt
+  populationGrowthPredicted         BigInt
+  populationGrowthCalculated        BigInt
+  populationGrowthPredictedFromNow  BigInt
+  populationGrowthCalculatedFromNow BigInt
+  populationGrowthPercent           Float
+  calculatedPopulationGrowthPercent Float
+}
+
+model Co2EmissionsBy {
+  time                       DateTime @id @default(now())
+  year                       Int
+  totalCo2EmissionsPredicted Float
+  tempAnomalyPredicted       Float
+}
+
+model EnergyProductionBy {
+  time                          DateTime @id @default(now())
+  year                          Int
+  totalFossilFuelProduction     Float
+  totalRenewableProduction      Float
+  hydropowerProduction          Float
+  windPowerProduction           Float
+  solarPowerProduction          Float
+  otherRenewablePowerProduction Float
+}
