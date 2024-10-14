@@ -80,11 +80,11 @@ export default defineEventHandler(async (event) => {
         if (query.type === "temp") {
             return {
                 2030: {
-                    population: Number(population2030?.populationPredicted),
+                    population: Number(population2030?.populationGrowthCalculated),
                     temp: Number(co22030?.tempAnomalyPredicted)
                 },
                 2050: {
-                    population: Number(population2050?.populationPredicted),
+                    population: Number(population2050?.populationGrowthCalculated),
                     temp: Number(co22050?.tempAnomalyPredicted)
                 }
             }

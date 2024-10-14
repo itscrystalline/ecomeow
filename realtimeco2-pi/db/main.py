@@ -14,7 +14,8 @@ URL_ANNUAL_EMISSIONS = (f"{AI_URL}/annualEmissions?currentPopulationGrowth=POP_G
 URL_TOTAL_EMISSIONS = f"{AI_URL}/totalEmissions?currentPopulation=POPULATION&endOfYearPopulation=END_POP"
 URL_PREDICT_POPULATION = f"{AI_URL}/populationBy/YEAR?nowPopulation=POPULATION"
 URL_PREDICT_TOTAL_EMISSIONS = f"{AI_URL}/totalCo2EmissionsBy/YEAR?nowTotalCo2Emissions=NOW_CO2_EMISSIONS"
-URL_PREDICT_TEMP_ANOMALY = f"{AI_URL}/annualTempAnomaly/TOTAL_EMISSIONS"
+URL_PREDICT_ANNUAL_EMISSIONS = f"{AI_URL}/annualEmissionsByYear?yearPopulationGrowth=POP_GROWTH"
+URL_PREDICT_TEMP_ANOMALY = f"{AI_URL}/annualTempAnomaly/ANNUAL_EMISSIONS"
 URL_ENERGY_PRODUCTION = (f"{AI_URL}/energyProductionBy/YEAR?fossilEnergyTWh=FOSSIL_ENERGY&renewableEnergyTWh"
                          f"=RENEWABLE_ENERGY&populationGrowth=POP_GROWTH_TODAY")
 
@@ -126,27 +127,32 @@ async def main(population: int, populationGrowthThisYear: int, populationGrowthT
                     }
                 )
 
-            tempAnomalyPredictedTotal = 0
-            for successiveYear in range(datetime.now().year, int(year) + 1):
-                url = URL_PREDICT_TOTAL_EMISSIONS.replace("YEAR", str(successiveYear)).replace("NOW_CO2_EMISSIONS", str(
-                    prediction_totalemissions["totalCo2EmissionsPredicted"]))
+            url = URL_PREDICT_TOTAL_EMISSIONS.replace("YEAR", str(year)).replace("NOW_CO2_EMISSIONS", str(
+                prediction_totalemissions["totalCo2EmissionsPredicted"]))
 
-                async with session.get(url) as response:
-                    prediction_totalemission_future = await response.json()
+            async with session.get(url) as response:
+                prediction_totalemission_future = await response.json()
 
-                url_temp_anomaly = URL_PREDICT_TEMP_ANOMALY.replace("TOTAL_EMISSIONS", str(
-                    prediction_totalemission_future["totalCo2EmissionsPredicted"]))
+            url_annual_emissions = URL_PREDICT_ANNUAL_EMISSIONS.replace("YEAR", str(year)).replace("POP_GROWTH",
+                                                                                                   str(
+                                                                                                       prediction_population[
+                                                                                                           "populationGrowthCalculated"]))
 
-                async with session.get(url_temp_anomaly) as response:
-                    prediction_temp_anomaly = await response.json()
+            async with session.get(url_annual_emissions) as response:
+                prediction_annualemission_future = await response.json()
 
-                    tempAnomalyPredictedTotal += prediction_temp_anomaly["annualTempAnomalyPredicted"]
+            url_temp_anomaly = URL_PREDICT_TEMP_ANOMALY.replace("ANNUAL_EMISSIONS", str(
+                prediction_annualemission_future["emissionsPredicted"]))
+
+            async with session.get(url_temp_anomaly) as response:
+                prediction_temp_anomaly = await response.json()
 
             await db.co2emissionsby.create(
                 {
                     "year": int(year),
                     "totalCo2EmissionsPredicted": prediction_totalemission_future["totalCo2EmissionsPredicted"],
-                    "tempAnomalyPredicted": tempAnomalyPredictedTotal
+                    "annualCo2EmissionsPredicted": prediction_annualemission_future["emissionsPredicted"],
+                    "tempAnomalyPredicted": prediction_temp_anomaly["annualTempAnomalyPredicted"]
                 }
             )
 

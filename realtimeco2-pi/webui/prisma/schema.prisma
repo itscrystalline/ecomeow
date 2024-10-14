@@ -65,10 +65,11 @@ model PopulationBy {
 }
 
 model Co2EmissionsBy {
-  time                       DateTime @id @default(now())
-  year                       Int
-  totalCo2EmissionsPredicted Float
-  tempAnomalyPredicted       Float
+  time                        DateTime @id @default(now())
+  year                        Int
+  totalCo2EmissionsPredicted  Float
+  annualCo2EmissionsPredicted Float    @default(0)
+  tempAnomalyPredicted        Float
 }
 
 model EnergyProductionBy {

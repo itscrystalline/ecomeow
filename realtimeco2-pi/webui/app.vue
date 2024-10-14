@@ -27,7 +27,7 @@
       <div>
         <HybridChart title="Global CO₂ Emissions In Relation to Global Population" :constraints="populationConstraints"
                      content="co2" text="CO₂ Emissions (Tons)" color="rgba(54, 162, 235, 0.5)"/>
-        <HybridChart title="Global Warming In Relation to Global Population" :constraints="populationConstraints"
+        <HybridChart title="Global Warming In Relation to Global Population Growth" :constraints="populationConstraints"
                      content="temp" text="Global Warming (°C)" color="rgba(146, 211, 120, 0.5)"/>
       </div>
 

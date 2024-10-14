@@ -191,7 +191,7 @@ const renderChart = (data: ApiResponse) => {
       .attr('y', d => yScaleLeft(d.content) - 15)
       .attr('text-anchor', 'middle')
       .attr('font-size', '11px')
-      .text(d => formatNumberWithIons(d.content))
+      .text(d => d.content > 1000000 ? formatNumberWithIons(d.content) : formatNumberWithCommas(d.content))
       .on('mouseover', (event, d) => {
         event.target.textContent = formatNumberWithCommas(d.content)
       })
@@ -266,7 +266,7 @@ const renderChart = (data: ApiResponse) => {
       .attr('transform', 'rotate(-90)')
       .attr('x', -height / 2)
       .attr('y', width + margin.right - 20)
-      .text('Population (Billions)')
+      .text(props.content == "temp" ? 'Population Growth' : 'Population')
 
   // Optional: Add a legend
   const legend = svg.append('g').attr('transform', `translate(${width - 150}, 0)`)
@@ -301,7 +301,7 @@ const renderChart = (data: ApiResponse) => {
       .append('text')
       .attr('x', 20)
       .attr('y', 37)
-      .text('Population')
+      .text(props.content == "temp" ? 'Population Growth' : 'Population')
       .attr('font-size', '12px')
       .attr('alignment-baseline', 'middle')
 }

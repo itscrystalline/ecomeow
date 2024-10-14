@@ -83,14 +83,14 @@ async def energy_production_by_year(year: int, fossilEnergyTWh: float, renewable
     }
 
 
-@app.get("/annualTempAnomaly/{emissionsTotal}")
-async def annual_temp_anomaly(emissionsTotal: int):
-    model = pickle.load(open(f'{MODELS_FOLDER}/totalco2-annualtemp.pkl', 'rb'))
+@app.get("/annualTempAnomaly/{emissionsAnnual}")
+async def annual_temp_anomaly(emissionsAnnual: int):
+    model = pickle.load(open(f'{MODELS_FOLDER}/annualtemp-annualco2.pkl', 'rb'))
 
-    annualTempAnomalyPredicted = model.predict([[emissionsTotal]])[0]
+    annualTempAnomalyPredicted = model.predict([[emissionsAnnual]])[0]
 
     return {
-        "emissionsTotal": emissionsTotal,
+        "emissionsAnnual": emissionsAnnual,
         "annualTempAnomalyPredicted": annualTempAnomalyPredicted
     }
 
@@ -220,6 +220,18 @@ async def population(population: int, populationGrowthThisYear: int):
         "endOfYearPopulationGrowthPredicted": endOfYearPopulationGrowthPredicted,
         "populationAccuracy": populationAccuracy,
         "growthAccuracy": growthAccuracy
+    }
+
+
+@app.get("/annualEmissionsByYear")
+async def annualEmissionsByYear(yearPopulationGrowth: int):
+    model = pickle.load(open(f'{MODELS_FOLDER}/population_increase_vs_annual_co2.pkl', 'rb'))
+
+    emissionsPredicted = int(model.predict([[yearPopulationGrowth]])[0])
+
+    return {
+        "yearPopulationGrowth": yearPopulationGrowth,
+        "emissionsPredicted": emissionsPredicted
     }
 
 

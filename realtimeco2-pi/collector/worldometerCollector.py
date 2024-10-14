@@ -29,4 +29,4 @@ with sync_playwright() as p:
             f"&fossilEnergyMWh={fossilEnergyMWh}&renewableEnergyMWh={renewableEnergyMWh}")
         requests.post(url)
 
-        time.sleep(5)
+        time.sleep(30)
